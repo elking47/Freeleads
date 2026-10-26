@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Freeleads</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/app.css">
+  <script type="module" src="/js/app/main.js"></script>
+</head>
+<body class="app-page">
+  <a class="skip-link" href="#view">Skip to content</a>
+
+  <div class="app-layout" data-app hidden>
+    <aside class="sidebar" id="sidebar" data-sidebar>
+      <div class="sidebar-top">
+        <a class="brand" href="#/today" aria-label="Freeleads, today's feed">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#4b40e0"/><path d="M8.5 21.5a7.5 7.5 0 0 1 15 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M16 7.5v3.2M9.2 10.3l2.1 2.2M22.8 10.3l-2.1 2.2" stroke="#ffd36b" stroke-width="2.4" stroke-linecap="round"/><path d="M6 24.5h20" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>
+          freeleads
+        </a>
+        <button class="btn btn-ghost btn-icon sidebar-close" type="button" data-sidebar-close>
+          <span class="visually-hidden">Close menu</span>
+        </button>
+      </div>
+
+      <a class="plan-pill" href="#/settings" data-plan-pill></a>
+
+      <nav class="sidebar-nav" aria-label="App">
+        <p class="nav-section">Prospect</p>
+        <a class="nav-link" href="#/today" data-route="today" data-icon="sun">Today <span class="nav-count" data-count="today"></span></a>
+        <a class="nav-link" href="#/leads" data-route="leads" data-icon="list">All leads</a>
+        <a class="nav-link" href="#/pipeline" data-route="pipeline" data-icon="kanban">Pipeline</a>
+
+        <p class="nav-section">Outreach</p>
+        <a class="nav-link" href="#/templates" data-route="templates" data-icon="template">Templates</a>
+        <a class="nav-link" href="#/followups" data-route="followups" data-icon="bell">Follow-ups <span class="nav-count nav-count-alert" data-count="followups"></span></a>
+
+        <p class="nav-section">Insights</p>
+        <a class="nav-link" href="#/analytics" data-route="analytics" data-icon="chart">Analytics</a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <a class="nav-link" href="#/settings" data-route="settings" data-icon="settings">Settings</a>
+        <div class="user-chip">
+          <span class="avatar" data-user-initials></span>
+          <div class="user-meta">
+            <p class="user-name" data-user-name></p>
+            <p class="user-email" data-user-email></p>
+          </div>
+          <button class="btn btn-ghost btn-icon" type="button" data-logout>
+            <span class="visually-hidden">Sign out</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="sidebar-scrim" data-sidebar-close></div>
+
+    <div class="app-main">
+      <header class="mobile-bar">
+        <button class="btn btn-ghost btn-icon" type="button" aria-controls="sidebar" aria-expanded="false" data-sidebar-open>
+          <span class="visually-hidden">Open menu</span>
+        </button>
+        <span class="brand">freeleads</span>
+      </header>
+      <main class="view" id="view" tabindex="-1" aria-live="polite"></main>
+    </div>
+  </div>
+
+  <div class="boot" data-boot>
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#4b40e0"/><path d="M8.5 21.5a7.5 7.5 0 0 1 15 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M16 7.5v3.2M9.2 10.3l2.1 2.2M22.8 10.3l-2.1 2.2" stroke="#ffd36b" stroke-width="2.4" stroke-linecap="round"/><path d="M6 24.5h20" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <p>Loading your Freeleads…</p>
+  </div>
+
+  <div class="toast-region" role="status" aria-live="polite" data-toasts></div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in · Freeleads</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <script type="module" src="/js/auth.js"></script>
+</head>
+<body class="auth-page">
+  <main class="auth-layout">
+    <section class="auth-form-side">
+      <a class="brand" href="/" aria-label="Freeleads home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#4b40e0"/><path d="M8.5 21.5a7.5 7.5 0 0 1 15 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M16 7.5v3.2M9.2 10.3l2.1 2.2M22.8 10.3l-2.1 2.2" stroke="#ffd36b" stroke-width="2.4" stroke-linecap="round"/><path d="M6 24.5h20" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>
+        freeleads
+      </a>
+
+      <div class="auth-card">
+        <h1>Welcome back</h1>
+        <p class="auth-sub">Your morning Freeleads are waiting.</p>
+
+        <form class="auth-form" data-auth-form="login" method="post" action="/api/auth/login">
+          <p class="form-error" role="alert" data-form-error></p>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input class="input" id="email" name="email" type="email" autocomplete="username" required maxlength="254" inputmode="email">
+            <p class="field-error" id="err-email" data-error-for="email"></p>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="password-wrap">
+              <input class="input" id="password" name="password" type="password" autocomplete="current-password" required maxlength="128">
+              <button class="password-toggle" type="button" aria-controls="password" aria-pressed="false" data-password-toggle>Show</button>
+            </div>
+            <p class="field-error" id="err-password" data-error-for="password"></p>
+          </div>
+
+          <button class="btn btn-primary btn-lg" type="submit">Log in</button>
+        </form>
+
+        <p class="auth-switch">New to Freeleads? <a href="/signup">Start a free trial</a></p>
+      </div>
+    </section>
+
+    <aside class="auth-brand-side" aria-label="About Freeleads">
+      <div class="auth-brand-inner">
+        <p class="eyebrow">Freeleads</p>
+        <p class="auth-quote">Stop searching. Start replying.</p>
+        <ol class="mini-timeline">
+          <li><span>10 PM</span>Thousands of listings scanned on 4 job boards</li>
+          <li><span>3 AM</span>AI keeps only the hidden freelance needs</li>
+          <li><span>5 AM</span>Decision-makers identified and enriched</li>
+          <li><span>8 AM</span>Your Freeleads are waiting in your CRM</li>
+        </ol>
+      </div>
+    </aside>
+  </main>
+</body>
+</html>

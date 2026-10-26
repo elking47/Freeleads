@@ -1,0 +1,147 @@
+/* Login and signup: split screen (form left, brand panel right). */
+
+.auth-page {
+  background: var(--surface-2);
+}
+
+.auth-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.auth-form-side {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 32px 48px 48px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  margin: auto;
+}
+
+.auth-card h1 {
+  font-family: var(--font-serif);
+  font-size: 2.1rem;
+}
+
+.auth-sub {
+  margin: 8px 0 28px;
+  color: var(--ink-500);
+}
+
+.auth-form {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-form fieldset {
+  min-width: 0;
+}
+
+.auth-form legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.legend-hint {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-500);
+}
+
+.auth-form .btn-lg {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.auth-switch {
+  margin-top: 24px;
+  color: var(--ink-500);
+  font-size: 0.94rem;
+}
+
+.auth-switch a {
+  font-weight: 600;
+}
+
+.auth-brand-side {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 64px;
+  overflow: hidden;
+  background:
+    radial-gradient(500px 340px at 100% 0%, rgb(244 183 64 / 0.3), transparent 70%),
+    radial-gradient(600px 500px at 0% 100%, rgb(124 119 246 / 0.45), transparent 70%),
+    var(--primary-900);
+  color: #fff;
+}
+
+.auth-brand-inner {
+  max-width: 460px;
+}
+
+.auth-brand-side .eyebrow {
+  color: #c9c6ff;
+}
+
+.auth-quote {
+  margin: 16px 0 40px;
+  font-family: var(--font-serif);
+  font-size: clamp(1.9rem, 3vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.12;
+}
+
+.mini-timeline {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mini-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 16px;
+  padding: 12px 0;
+  color: #dcdaf7;
+}
+
+.mini-timeline li + li {
+  border-top: 1px solid rgb(255 255 255 / 0.12);
+}
+
+.mini-timeline span {
+  font-weight: 800;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.mini-timeline li:last-child span {
+  color: #f4b740;
+}
+
+@media (max-width: 900px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-brand-side {
+    display: none;
+  }
+
+  .auth-form-side {
+    padding: 24px 16px 40px;
+  }
+}
