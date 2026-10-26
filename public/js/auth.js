@@ -8,7 +8,9 @@ const form = document.querySelector("[data-auth-form]");
 const mode = form.dataset.authForm;
 
 // Already signed in? Go straight to the app.
-api("/auth/me").then(() => location.replace("/app"), () => {});
+api("/auth/session").then(({ authenticated }) => {
+  if (authenticated) location.replace("/app");
+}, () => {});
 
 enhancePasswords(form);
 

@@ -213,9 +213,9 @@ const candidateListings = db.prepare(`
   LIMIT ?
 `);
 
+/** Deliver `batchDate` to one user. Returns how many leads this call added (0 if already delivered). */
 export function deliverToUser(user, batchDate) {
-  const already = findDelivery.get(user.id, batchDate);
-  if (already) return already.delivered;
+  if (findDelivery.get(user.id, batchDate)) return 0;
 
   const plan = planState(user);
   if (!plan.canReceiveLeads) return 0;

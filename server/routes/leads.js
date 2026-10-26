@@ -43,7 +43,8 @@ const q = {
   update: db.prepare(`
     UPDATE leads SET
       status = ?, rating = ?, notes = ?, won_amount = ?,
-      contacted_at = ?, replied_at = ?, won_at = ?, lost_at = ?, updated_at = ?
+      contacted_at = ?, replied_at = ?, won_at = ?, lost_at = ?,
+      followup1_done_at = ?, followup2_done_at = ?, updated_at = ?
     WHERE id = ? AND user_id = ?
   `),
   followUpDone: [
@@ -56,6 +57,35 @@ const q = {
       AND (d.followup1_done_at IS NULL OR d.followup2_done_at IS NULL)
   `),
 };
+
+const STAGE_RANK = { new: 0, contacted: 1, replied: 2, won: 3 };
+
+/**
+ * Pipeline timestamps for a lead entering `status`. Reaching a stage implies the earlier ones happened;
+ * moving back clears the later ones, so analytics only count what really happened. "Lost" keeps the
+ * progress made so far (a lead can be lost before or after contact).
+ */
+function stageTimestamps(row, status, now) {
+  if (status === "lost") {
+    return {
+      contactedAt: row.contacted_at,
+      repliedAt: row.replied_at,
+      wonAt: null,
+      lostAt: row.lost_at ?? now,
+      followup1At: row.followup1_done_at,
+      followup2At: row.followup2_done_at,
+    };
+  }
+  const rank = STAGE_RANK[status];
+  return {
+    contactedAt: rank >= 1 ? (row.contacted_at ?? now) : null,
+    repliedAt: rank >= 2 ? (row.replied_at ?? now) : null,
+    wonAt: rank >= 3 ? (row.won_at ?? now) : null,
+    lostAt: null,
+    followup1At: rank >= 1 ? row.followup1_done_at : null,
+    followup2At: rank >= 1 ? row.followup2_done_at : null,
+  };
+}
 
 function followUps(row) {
   if (!row.contacted_at) return [];
@@ -202,29 +232,19 @@ leadsRouter.patch("/:id", (req, res) => {
   if (!ok) throw validationError(errors);
 
   const now = nowIso();
+  const status = data.status ?? row.status;
   const next = {
-    status: data.status ?? row.status,
     rating: data.rating !== undefined ? data.rating : row.rating,
     notes: data.notes !== undefined ? data.notes : row.notes,
     wonAmount: data.wonAmount !== undefined ? data.wonAmount : row.won_amount,
-    contactedAt: row.contacted_at,
-    repliedAt: row.replied_at,
-    wonAt: row.won_at,
-    lostAt: row.lost_at,
+    ...stageTimestamps(row, status, now),
   };
-
-  // Reaching a later stage implies the earlier ones happened.
-  if (["contacted", "replied", "won", "lost"].includes(next.status)) next.contactedAt ??= now;
-  if (["replied", "won"].includes(next.status)) next.repliedAt ??= now;
-  if (next.status === "won") next.wonAt ??= now;
-  if (next.status === "lost") next.lostAt ??= now;
-  if (next.status !== "won") next.wonAt = null;
-  if (next.status !== "lost") next.lostAt = null;
 
   transaction(() => {
     q.update.run(
-      next.status, next.rating, next.notes, next.wonAmount,
-      next.contactedAt, next.repliedAt, next.wonAt, next.lostAt, now, row.id, req.user.id
+      status, next.rating, next.notes, next.wonAmount,
+      next.contactedAt, next.repliedAt, next.wonAt, next.lostAt,
+      next.followup1At, next.followup2At, now, row.id, req.user.id
     );
     if (data.status && data.status !== row.status) q.addActivity.run(row.id, "status", data.status, now);
     if (data.rating !== undefined && data.rating !== row.rating) q.addActivity.run(row.id, "rating", data.rating, now);
@@ -238,7 +258,13 @@ leadsRouter.post("/:id/followups", (req, res) => {
   const row = getOwnedLead(req);
   const { ok, data, errors } = validate(schemas.followUpDone, req.body);
   if (!ok) throw validationError(errors);
-  if (!row.contacted_at) throw new HttpError(409, "not_contacted", "Mark the lead as contacted first.");
+  // Follow-ups only make sense while waiting for a reply, and D+7 comes after D+3.
+  if (row.status !== "contacted") {
+    throw new HttpError(409, "not_waiting", "Follow-ups apply only to leads marked as contacted.");
+  }
+  if (data.step === 2 && !row.followup1_done_at) {
+    throw new HttpError(409, "out_of_order", "Do the D+3 follow-up first.");
+  }
 
   const now = nowIso();
   q.followUpDone[data.step - 1].run(now, now, row.id, req.user.id);

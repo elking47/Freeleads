@@ -50,6 +50,11 @@
   color: var(--ink-900);
 }
 
+/* Only shown in the mobile menu, where the header's "Log in" button is hidden. */
+.site-nav .nav-login {
+  display: none;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -916,6 +921,15 @@
 
   .site-nav a {
     padding: 12px;
+  }
+
+  .site-nav .nav-login {
+    display: block;
+    margin-top: 6px;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+    font-weight: 600;
+    color: var(--primary-600);
   }
 
   .header-actions {

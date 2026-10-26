@@ -1,70 +1,9 @@
 // End-to-end security checks against a real server instance with a throwaway database.
 import assert from "node:assert/strict";
-import { randomBytes } from "node:crypto";
-import { rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
-import { after, before, describe, it } from "node:test";
+import { describe, it } from "node:test";
+import { client, db, getBaseUrl, useServer } from "./helpers.js";
 
-const dbPath = path.join(tmpdir(), `freeleads-test-${randomBytes(6).toString("hex")}.db`);
-process.env.DATABASE_PATH = dbPath;
-process.env.SESSION_SECRET = randomBytes(48).toString("base64url");
-
-const { createApp } = await import("../server/app.js");
-const { seedTemplates } = await import("../server/seed-templates.js");
-const { db } = await import("../server/db.js");
-
-let server;
-let baseUrl;
-
-/** Minimal browser-like client: keeps cookies and sends the CSRF header. */
-function client() {
-  const jar = new Map();
-  async function request(method, url, { body, headers = {}, csrf = true, raw } = {}) {
-    const cookie = [...jar].map(([k, v]) => `${k}=${v}`).join("; ");
-    const finalHeaders = { Accept: "application/json", ...headers };
-    if (cookie) finalHeaders.Cookie = cookie;
-    if (csrf && method !== "GET" && jar.has("fl_csrf")) finalHeaders["X-CSRF-Token"] = decodeURIComponent(jar.get("fl_csrf"));
-    if (body !== undefined && !finalHeaders["Content-Type"]) finalHeaders["Content-Type"] = "application/json";
-    const response = await fetch(`${baseUrl}${url}`, {
-      method,
-      headers: finalHeaders,
-      body: raw ?? (body !== undefined ? JSON.stringify(body) : undefined),
-    });
-    for (const line of response.headers.getSetCookie()) {
-      const [pair] = line.split(";");
-      const index = pair.indexOf("=");
-      jar.set(pair.slice(0, index), pair.slice(index + 1));
-    }
-    const data = await response.json().catch(() => null);
-    return { status: response.status, data, headers: response.headers };
-  }
-  return {
-    jar,
-    get: (url, opts) => request("GET", url, opts),
-    post: (url, body, opts) => request("POST", url, { ...opts, body }),
-    patch: (url, body, opts) => request("PATCH", url, { ...opts, body }),
-    async signup(email, password = "Sunrise-pipeline-42") {
-      await request("GET", "/api/auth/csrf");
-      return request("POST", "/api/auth/signup", {
-        body: { name: "Test User", email, password, disciplines: ["web", "video"], terms: true },
-      });
-    },
-  };
-}
-
-before(async () => {
-  seedTemplates();
-  server = createApp().listen(0, "127.0.0.1");
-  await new Promise((resolve) => server.once("listening", resolve));
-  baseUrl = `http://127.0.0.1:${server.address().port}`;
-});
-
-after(() => {
-  server.close();
-  db.close();
-  for (const suffix of ["", "-wal", "-shm"]) rmSync(`${dbPath}${suffix}`, { force: true });
-});
+useServer();
 
 describe("HTTP hardening", () => {
   it("sends security headers and hides the framework", async () => {
@@ -105,7 +44,7 @@ describe("HTTP hardening", () => {
   it("sets HttpOnly, SameSite=Strict session cookies", async () => {
     const c = client();
     await c.get("/api/auth/csrf");
-    const response = await fetch(`${baseUrl}/api/auth/signup`, {
+    const response = await fetch(`${getBaseUrl()}/api/auth/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -194,6 +133,16 @@ describe("Access control", () => {
   it("requires a session for app endpoints", async () => {
     assert.equal((await client().get("/api/leads")).status, 401);
     assert.equal((await client().get("/api/analytics")).status, 401);
+  });
+
+  it("reports session state to public pages without a 401", async () => {
+    const anonymous = await client().get("/api/auth/session");
+    assert.equal(anonymous.status, 200);
+    assert.deepEqual(anonymous.data, { authenticated: false });
+
+    const c = client();
+    await c.signup("session@freeleads.example");
+    assert.deepEqual((await c.get("/api/auth/session")).data, { authenticated: true });
   });
 
   it("enforces the plan's discipline limit on the server", async () => {

@@ -51,9 +51,14 @@ async function route() {
   }
 }
 
-function setSidebar(open) {
+function setSidebar(open, { moveFocus = false } = {}) {
+  const wasOpen = sidebar.dataset.open === "true";
   sidebar.setAttribute("data-open", String(open));
   openButton.setAttribute("aria-expanded", String(open));
+  // Mobile menu: put focus inside when it opens, and back on the menu button when it closes.
+  if (!moveFocus) return;
+  if (open) sidebar.querySelector("[data-sidebar-close]").focus();
+  else if (wasOpen) openButton.focus();
 }
 
 async function refreshCounts() {
@@ -89,10 +94,12 @@ async function boot() {
       location.replace("/login");
     }
   });
-  openButton.addEventListener("click", () => setSidebar(true));
-  for (const el of document.querySelectorAll("[data-sidebar-close]")) el.addEventListener("click", () => setSidebar(false));
+  openButton.addEventListener("click", () => setSidebar(true, { moveFocus: true }));
+  for (const el of document.querySelectorAll("[data-sidebar-close]")) {
+    el.addEventListener("click", () => setSidebar(false, { moveFocus: true }));
+  }
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") setSidebar(false);
+    if (event.key === "Escape" && sidebar.dataset.open === "true") setSidebar(false, { moveFocus: true });
   });
 
   renderUser();

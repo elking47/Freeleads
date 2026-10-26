@@ -49,6 +49,11 @@ authRouter.get("/csrf", (req, res) => {
   res.json({ csrfToken: issueCsrf(res, req.session?.tokenHash ?? "anon") });
 });
 
+// Lets public pages check for a session without a 401 showing up as an error in the browser console.
+authRouter.get("/session", (req, res) => {
+  res.json({ authenticated: Boolean(req.user) });
+});
+
 authRouter.get("/me", (req, res) => {
   if (!req.user) throw new HttpError(401, "unauthenticated", "Please sign in.");
   res.json({ user: publicUser(req.user) });

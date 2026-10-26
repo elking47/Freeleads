@@ -5,7 +5,7 @@
   --ink-800: #1a2040;
   --ink-700: #2d3454;
   --ink-500: #5b6280;
-  --ink-400: #868ca6;
+  --ink-400: #666a7e; /* Darkest "quiet" grey that still meets WCAG AA (4.5:1) on every surface. */
   --line: #e5e7f0;
   --line-strong: #d2d5e3;
   --surface: #ffffff;
@@ -22,13 +22,13 @@
   --primary-900: #1c176e;
 
   --amber-50: #fff6e5;
-  --amber-600: #c27803;
+  --amber-600: #9f6202;
   --green-50: #e7f7ef;
-  --green-600: #04875c;
+  --green-600: #047c55;
   --rose-50: #fff0f3;
   --rose-600: #d61f45;
   --sky-50: #e8f5fd;
-  --sky-600: #0277b6;
+  --sky-600: #0273b1;
 
   --radius-sm: 8px;
   --radius: 12px;

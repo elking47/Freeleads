@@ -162,7 +162,9 @@ export async function openLead(id, { onChange } = {}) {
 
   function render() {
     const dm = lead.decisionMaker;
-    const focusedId = document.activeElement?.id; // Re-rendering must not drop keyboard focus.
+    // Re-rendering must not drop keyboard focus (controls are found again by id or rating).
+    const focusedId = document.activeElement?.id;
+    const focusedRating = document.activeElement?.dataset?.rating;
     el.replaceChildren(
       h("header", { class: "drawer-head" },
         scoreEl(lead.listing.fitScore),
@@ -248,6 +250,7 @@ export async function openLead(id, { onChange } = {}) {
       )
     );
     if (focusedId) document.getElementById(focusedId)?.focus();
+    else if (focusedRating) el.querySelector(`[data-rating="${focusedRating}"]`)?.focus();
   }
 
   render();

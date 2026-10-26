@@ -1194,12 +1194,16 @@
     z-index: 60;
     width: 280px;
     transform: translateX(-100%);
-    transition: transform 0.2s ease-out;
+    /* Hidden (not just off-screen) when closed, so keyboard and screen-reader users can't land in it. */
+    visibility: hidden;
+    transition: transform 0.2s ease-out, visibility 0s linear 0.2s;
   }
 
   .sidebar[data-open="true"] {
     transform: none;
+    visibility: visible;
     box-shadow: var(--shadow-lg);
+    transition: transform 0.2s ease-out;
   }
 
   .sidebar[data-open="true"] + .sidebar-scrim {

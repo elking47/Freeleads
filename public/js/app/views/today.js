@@ -92,27 +92,51 @@ export async function render() {
   const disciplines = user.disciplines.map(disciplineLabel).join(", ");
 
   const lists = h("div");
-  const renderLists = () => {
-    const onOpen = (id) => openLead(id, { onChange: (updated) => replaceLead(updated) });
-    const section = (title, hint, leads) =>
-      leads.length
-        ? [
-            h("h2", { class: "section-title" }, title, h("span", { class: "badge" }, String(leads.length))),
-            hint ? h("p", { class: "muted" }, hint) : null,
-            h("ul", { class: "lead-list" }, leads.map((lead) => leadCard(lead, { onOpen, onUpdated: replaceLead }))),
-          ]
-        : [];
-    replace(lists,
-      section("Strong fits", null, strong),
-      section("Worth a look", "Lower fit score, but still a real freelance need.", worth));
-  };
-  const replaceLead = (updated) => {
+  // The side column (checklist, plan) is re-rendered whenever a lead changes, so progress shows at once.
+  const side = h("div", { class: "settings-grid" });
+  const renderSide = (stats) =>
+    replace(side,
+      checklist(user, stats.totals, templates),
+      h("section", { class: "card card-pad" },
+        h("h2", { class: "card-title" }, "Your plan today"),
+        h("p", { class: "card-sub" },
+          `${delivery.delivered} of ${delivery.quota ?? "unlimited"} Freeleads delivered · ${user.plan.disciplines} discipline${user.plan.disciplines > 1 ? "s" : ""} included`),
+        h("p", { class: "card-sub" }, `Reply rate so far: ${stats.rates.reply}% · Close rate: ${stats.rates.close}%`)));
+  const refreshSide = async () => renderSide(await api("/analytics"));
+
+  const storeLead = (updated) => {
     for (const list of [strong, worth]) {
       const index = list.findIndex((l) => l.id === updated.id);
       if (index >= 0) list[index] = updated;
     }
   };
+  // A card redraws itself after a rating (and keeps keyboard focus); drawer changes redraw the lists.
+  const onCardUpdated = (updated) => {
+    storeLead(updated);
+    refreshSide();
+  };
+  const onDrawerChange = (updated) => {
+    storeLead(updated);
+    renderLists();
+    refreshSide();
+  };
+
+  function renderLists() {
+    const onOpen = (id) => openLead(id, { onChange: onDrawerChange });
+    const section = (title, hint, leads) =>
+      leads.length
+        ? [
+            h("h2", { class: "section-title" }, title, h("span", { class: "badge" }, String(leads.length))),
+            hint ? h("p", { class: "muted" }, hint) : null,
+            h("ul", { class: "lead-list" }, leads.map((lead) => leadCard(lead, { onOpen, onUpdated: onCardUpdated }))),
+          ]
+        : [];
+    replace(lists,
+      section("Strong fits", null, strong),
+      section("Worth a look", "Lower fit score, but still a real freelance need.", worth));
+  }
   renderLists();
+  renderSide(analytics);
 
   const subtitle = feed.deliveredOn
     ? `${formatLongDate(feed.deliveredOn)} · ${feed.total} new Freeleads in ${disciplines}`
@@ -136,15 +160,7 @@ export async function render() {
           : emptyState("No Freeleads yet today", "Your next delivery arrives at 8 AM. Meanwhile, work your pipeline.",
               h("a", { class: "btn", href: "#/leads" }, "See all leads"))
       ),
-      h("div", { class: "settings-grid" },
-        checklist(user, analytics.totals, templates),
-        h("section", { class: "card card-pad" },
-          h("h2", { class: "card-title" }, "Your plan today"),
-          h("p", { class: "card-sub" },
-            `${delivery.delivered} of ${delivery.quota ?? "unlimited"} Freeleads delivered · ${user.plan.disciplines} discipline${user.plan.disciplines > 1 ? "s" : ""} included`),
-          h("p", { class: "card-sub" }, `Reply rate so far: ${analytics.rates.reply}% · Close rate: ${analytics.rates.close}%`)
-        )
-      )
+      side
     )
   );
 }

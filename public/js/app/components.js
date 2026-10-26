@@ -52,6 +52,7 @@ export function rateButtons(lead, onUpdated) {
     h("button", {
       class: "btn btn-sm btn-icon",
       type: "button",
+      dataset: { rating: value },
       "aria-pressed": String(lead.rating === value),
       title: text,
       onClick: async () => {
@@ -68,6 +69,7 @@ export function leadCard(lead, { onOpen, onUpdated }) {
   const dm = lead.decisionMaker;
   const card = h("li", { class: "lead-card" });
   const render = (current) => {
+    const focusedRating = card.contains(document.activeElement) ? document.activeElement.dataset.rating : undefined;
     card.replaceChildren(
       scoreEl(current.listing.fitScore),
       h("div", {},
@@ -95,6 +97,8 @@ export function leadCard(lead, { onOpen, onUpdated }) {
         })
       )
     );
+    // Re-rendering replaces the buttons; keep keyboard focus on the one that was pressed.
+    if (focusedRating) card.querySelector(`[data-rating="${focusedRating}"]`)?.focus();
   };
   render(lead);
   return card;
