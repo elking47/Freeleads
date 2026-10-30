@@ -6,11 +6,12 @@
 //   email    {}                              lower-cased, RFC-lite syntax, <= 254 chars
 //   password {}                              new-password policy
 //   secret   { max }                         any non-empty string (login password), never echoed
+//   url      { max }                         absolute http(s) URL without credentials (never fetched)
 //   enum     { values }
 //   int      { min, max }                    accepts numbers or numeric strings (query params)
 //   bool     { mustBeTrue }
 //   list     { items: <enum spec>, min, max }
-// Common options: required, nullable, default, label.
+// Common options: required, nullable, default.
 
 import {
   CHANNEL_IDS,
@@ -29,15 +30,16 @@ const CONTROL_MULTILINE_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u00
 const EMAIL_RE =
   /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]{1,64}@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$/;
 const PERSON_NAME_RE = /^[\p{L}\p{M}][\p{L}\p{M}' .-]*$/u;
+const PHONE_RE = /^\+?[0-9 .()-]{6,20}$/;
 const COMMON_PASSWORDS = new Set([
   "password123", "azerty1234", "qwerty1234", "1234567890", "motdepasse1",
   "freeleads123", "welcome123", "password1234", "iloveyou123", "admin12345",
 ]);
 
 const MESSAGES = {
-  required: "This field is required.",
-  unexpected: "This field is not allowed.",
-  type: "Invalid value.",
+  required: "Ce champ est obligatoire.",
+  unexpected: "Ce champ n’est pas autorisé.",
+  type: "Valeur invalide.",
 };
 
 /** Normalize Unicode, remove control/invisible characters and trim. */
@@ -56,8 +58,8 @@ const checkers = {
   text(spec, raw) {
     if (typeof raw !== "string") return { error: MESSAGES.type };
     const value = sanitizeText(raw, { multiline: spec.multiline });
-    if (spec.min && value.length < spec.min) return { error: `Use at least ${spec.min} characters.` };
-    if (spec.max && value.length > spec.max) return { error: `Use at most ${spec.max} characters.` };
+    if (spec.min && value.length < spec.min) return { error: `${spec.min} caractères minimum.` };
+    if (spec.max && value.length > spec.max) return { error: `${spec.max} caractères maximum.` };
     if (spec.pattern && !spec.pattern.test(value)) return { error: spec.patternMessage ?? MESSAGES.type };
     return { value };
   },
@@ -65,16 +67,16 @@ const checkers = {
   email(_spec, raw) {
     if (typeof raw !== "string") return { error: MESSAGES.type };
     const value = sanitizeText(raw).toLowerCase();
-    if (value.length > 254 || !EMAIL_RE.test(value)) return { error: "Enter a valid email address." };
+    if (value.length > 254 || !EMAIL_RE.test(value)) return { error: "Saisissez une adresse e-mail valide." };
     return { value };
   },
 
   password(_spec, raw) {
     if (typeof raw !== "string") return { error: MESSAGES.type };
-    if (raw.length < 10) return { error: "Use at least 10 characters." };
-    if (raw.length > 128) return { error: "Use at most 128 characters." };
-    if (!/\p{L}/u.test(raw) || !/\d/.test(raw)) return { error: "Mix letters and at least one number." };
-    if (COMMON_PASSWORDS.has(raw.toLowerCase())) return { error: "This password is too common." };
+    if (raw.length < 10) return { error: "10 caractères minimum." };
+    if (raw.length > 128) return { error: "128 caractères maximum." };
+    if (!/\p{L}/u.test(raw) || !/\d/.test(raw)) return { error: "Mélangez des lettres et au moins un chiffre." };
+    if (COMMON_PASSWORDS.has(raw.toLowerCase())) return { error: "Ce mot de passe est trop courant." };
     return { value: raw };
   },
 
@@ -84,17 +86,34 @@ const checkers = {
     return { value: raw };
   },
 
+  url(spec, raw) {
+    if (typeof raw !== "string") return { error: MESSAGES.type };
+    const value = sanitizeText(raw);
+    const invalid = { error: "Collez un lien complet, qui commence par https://" };
+    if (value.length > (spec.max ?? 2048)) return { error: "Ce lien est trop long." };
+    let url;
+    try {
+      url = new URL(value);
+    } catch {
+      return invalid;
+    }
+    // Only web links, no embedded credentials, and a real host name. The server never fetches it.
+    if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) return invalid;
+    if (!url.hostname.includes(".") || /^[\d.]+$/.test(url.hostname) || url.hostname.startsWith("[")) return invalid;
+    return { value: url.href };
+  },
+
   enum(spec, raw) {
     const value = typeof raw === "string" ? raw.trim() : raw;
-    if (!spec.values.includes(value)) return { error: spec.message ?? "Choose one of the listed options." };
+    if (!spec.values.includes(value)) return { error: spec.message ?? "Choisissez une des options proposées." };
     return { value };
   },
 
   int(spec, raw) {
     const value = typeof raw === "string" && /^-?\d{1,12}$/.test(raw.trim()) ? Number(raw.trim()) : raw;
-    if (!Number.isSafeInteger(value)) return { error: "Enter a whole number." };
-    if (spec.min !== undefined && value < spec.min) return { error: `Must be ${spec.min} or more.` };
-    if (spec.max !== undefined && value > spec.max) return { error: `Must be ${spec.max} or less.` };
+    if (!Number.isSafeInteger(value)) return { error: "Saisissez un nombre entier." };
+    if (spec.min !== undefined && value < spec.min) return { error: `${spec.min} minimum.` };
+    if (spec.max !== undefined && value > spec.max) return { error: `${spec.max} maximum.` };
     return { value };
   },
 
@@ -113,8 +132,8 @@ const checkers = {
       if (result.error) return { error: result.error };
       if (!values.includes(result.value)) values.push(result.value);
     }
-    if (spec.min && values.length < spec.min) return { error: spec.minMessage ?? `Select at least ${spec.min}.` };
-    if (spec.max && values.length > spec.max) return { error: `Select at most ${spec.max}.` };
+    if (spec.min && values.length < spec.min) return { error: spec.minMessage ?? `Choisissez-en au moins ${spec.min}.` };
+    if (spec.max && values.length > spec.max) return { error: `${spec.max} maximum.` };
     return { value: values };
   },
 };
@@ -131,7 +150,7 @@ export function validate(schema, input, { partial = false } = {}) {
   const data = {};
 
   if (input === null || typeof input !== "object" || Array.isArray(input)) {
-    return { ok: false, data, errors: { _form: "Invalid request." } };
+    return { ok: false, data, errors: { _form: "Requête invalide." } };
   }
 
   for (const key of Object.keys(input)) {
@@ -162,7 +181,7 @@ export function validate(schema, input, { partial = false } = {}) {
   }
 
   if (partial && Object.keys(data).length === 0 && Object.keys(errors).length === 0) {
-    errors._form = "Nothing to update.";
+    errors._form = "Rien à mettre à jour.";
   }
 
   return { ok: Object.keys(errors).length === 0, data, errors };
@@ -175,14 +194,14 @@ const personName = {
   min: 2,
   max: 60,
   pattern: PERSON_NAME_RE,
-  patternMessage: "Use letters, spaces, apostrophes or hyphens only.",
+  patternMessage: "Lettres, espaces, apostrophes et tirets uniquement.",
 };
 const disciplineList = (max) => ({
   type: "list",
   items: { type: "enum", values: DISCIPLINE_IDS },
   min: 1,
   max,
-  minMessage: "Pick at least one discipline.",
+  minMessage: "Choisissez au moins un métier.",
 });
 
 // ---- Schemas ---------------------------------------------------------------------------------
@@ -193,12 +212,23 @@ export const schemas = {
     email: { type: "email", required: true },
     password: { type: "password", required: true },
     disciplines: { ...disciplineList(3), required: true },
-    terms: { type: "bool", required: true, mustBeTrue: true, message: "Please accept the terms to continue." },
+    terms: { type: "bool", required: true, mustBeTrue: true, message: "Acceptez les conditions pour continuer." },
   },
 
   login: {
     email: { type: "email", required: true },
     password: { type: "secret", required: true },
+  },
+
+  // A company submits a job offer (link or short description) to receive a freelance shortlist.
+  missionRequest: {
+    offerUrl: { type: "url", max: 2048, nullable: true },
+    description: { type: "text", multiline: true, min: 20, max: 1000, nullable: true },
+    company: { type: "text", min: 2, max: 100, required: true },
+    name: { ...personName, required: true },
+    email: { type: "email", required: true },
+    phone: { type: "text", max: 20, pattern: PHONE_RE, patternMessage: "Numéro de téléphone invalide.", nullable: true },
+    consent: { type: "bool", required: true, mustBeTrue: true, message: "Acceptez d’être recontacté pour continuer." },
   },
 
   leadQuery: {
@@ -248,6 +278,16 @@ export const schemas = {
 
   deleteAccount: {
     password: { type: "secret", required: true },
-    confirm: { type: "enum", values: ["DELETE"], required: true, message: "Type DELETE to confirm." },
+    confirm: { type: "enum", values: ["DELETE"], required: true, message: "Saisissez DELETE pour confirmer." },
   },
 };
+
+/** Mission requests need either a job-offer link or a short description of the need. */
+export function validateMissionRequest(input) {
+  const result = validate(schemas.missionRequest, input);
+  if (result.ok && !result.data.offerUrl && !result.data.description) {
+    const message = "Collez le lien de votre offre ou décrivez le besoin.";
+    return { ok: false, data: result.data, errors: { offerUrl: message, description: message } };
+  }
+  return result;
+}

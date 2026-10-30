@@ -79,7 +79,7 @@ describe("Input validation (backend, independent of the browser)", () => {
     await c.signup("mass@freeleads.example");
     const res = await c.patch("/api/settings/profile", { dailyRate: 500, plan: "team", trial_ends_at: null });
     assert.equal(res.status, 400);
-    assert.equal(res.data.fields.plan, "This field is not allowed.");
+    assert.equal(res.data.fields.plan, "Ce champ n’est pas autorisé.");
   });
 
   it("strips control and bidi-override characters", async () => {

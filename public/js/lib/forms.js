@@ -2,6 +2,10 @@
 // the server enforces, and server-side field errors mapped back onto the inputs.
 import { validate } from "/shared/validation.js";
 
+const GENERIC_ERROR = document.documentElement.lang === "fr"
+  ? "Une erreur est survenue. Réessayez."
+  : "Something went wrong. Please try again.";
+
 /** Read form controls into a plain object. Checkbox groups (data-list) become arrays. */
 export function collect(form, schema) {
   const values = {};
@@ -84,7 +88,7 @@ export function bindForm(form, schema, onSubmit, { partial = false } = {}) {
       await onSubmit(data);
     } catch (error) {
       if (error.fields) showErrors(form, error.fields);
-      else showErrors(form, { _form: error.message || "Something went wrong. Please try again." });
+      else showErrors(form, { _form: error.message || GENERIC_ERROR });
     } finally {
       if (submit) submit.disabled = false;
     }
@@ -98,7 +102,7 @@ export function enhancePasswords(root = document) {
     toggle.addEventListener("click", () => {
       const show = input.type === "password";
       input.type = show ? "text" : "password";
-      toggle.textContent = show ? "Hide" : "Show";
+      toggle.textContent = show ? (toggle.dataset.hideLabel ?? "Hide") : (toggle.dataset.showLabel ?? "Show");
       toggle.setAttribute("aria-pressed", String(show));
     });
   }

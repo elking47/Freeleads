@@ -1,11 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Start your free trial · Freeleads</title>
-  <meta name="description" content="Create your Freeleads account: 14 days of full Pro access, no credit card.">
+  <title>Créer mon profil · Freeleads</title>
+  <meta name="description" content="Créez votre profil freelance gratuit : 14 jours d’essai Pro inclus, sans carte bancaire.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script src="/js/theme-init.js"></script>
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/auth.css">
   <script type="module" src="/js/auth.js"></script>
@@ -13,42 +14,42 @@
 <body class="auth-page">
   <main class="auth-layout">
     <section class="auth-form-side">
-      <a class="brand" href="/" aria-label="Freeleads home">
-        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#4b40e0"/><path d="M8.5 21.5a7.5 7.5 0 0 1 15 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M16 7.5v3.2M9.2 10.3l2.1 2.2M22.8 10.3l-2.1 2.2" stroke="#ffd36b" stroke-width="2.4" stroke-linecap="round"/><path d="M6 24.5h20" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>
-        freeleads
+      <a class="logo" href="/" aria-label="Freeleads, accueil">
+        <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><rect class="logo-bg" width="32" height="32" rx="8"/><path class="logo-f" d="M10 8h12v4h-8v3.2h7v4h-7V24h-4z"/><circle cx="23.2" cy="22" r="2.6" fill="#10b981"/></svg>
+        Freeleads
       </a>
 
       <div class="auth-card">
-        <h1>Start your free trial</h1>
-        <p class="auth-sub">14 days of full Pro access. No credit card. Your first Freeleads arrive right after signup.</p>
+        <h1>Créer mon profil</h1>
+        <p class="auth-sub">Gratuit, sans carte bancaire. 14 jours d’essai Pro inclus&nbsp;: vos premières missions arrivent dès la création du profil.</p>
 
-        <form class="auth-form" data-auth-form="signup" method="post" action="/api/auth/signup">
+        <form class="auth-form" data-auth-form="signup">
           <p class="form-error" role="alert" data-form-error></p>
 
           <div class="field">
-            <label for="name">Full name</label>
+            <label for="name">Nom complet</label>
             <input class="input" id="name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="60">
             <p class="field-error" id="err-name" data-error-for="name"></p>
           </div>
 
           <div class="field">
-            <label for="email">Work email</label>
+            <label for="email">E-mail</label>
             <input class="input" id="email" name="email" type="email" autocomplete="email" required maxlength="254" inputmode="email">
             <p class="field-error" id="err-email" data-error-for="email"></p>
           </div>
 
           <div class="field">
-            <label for="password">Password</label>
+            <label for="password">Mot de passe</label>
             <div class="password-wrap">
               <input class="input" id="password" name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="128" aria-describedby="password-hint">
-              <button class="password-toggle" type="button" aria-controls="password" aria-pressed="false" data-password-toggle>Show</button>
+              <button class="password-toggle" type="button" aria-controls="password" aria-pressed="false" data-password-toggle data-show-label="Afficher" data-hide-label="Masquer">Afficher</button>
             </div>
-            <p class="hint" id="password-hint">At least 10 characters, with letters and a number.</p>
+            <p class="hint" id="password-hint">10 caractères minimum, avec des lettres et au moins un chiffre.</p>
             <p class="field-error" id="err-password" data-error-for="password"></p>
           </div>
 
           <fieldset class="field">
-            <legend class="field-label">Your disciplines <span class="legend-hint">Pick up to 3 during the trial</span></legend>
+            <legend class="field-label">Vos métiers <span class="legend-hint">jusqu’à 3</span></legend>
             <div class="chip-group" data-discipline-picker data-max="3"></div>
             <p class="field-error" id="err-disciplines" data-error-for="disciplines"></p>
           </fieldset>
@@ -56,27 +57,27 @@
           <div class="field">
             <label class="checkbox">
               <input type="checkbox" name="terms" required>
-              <span>I agree to the terms of service and the privacy policy.</span>
+              <span>J’accepte les <a href="/conditions">conditions d’utilisation</a> et la <a href="/confidentialite">politique de confidentialité</a>.</span>
             </label>
             <p class="field-error" id="err-terms" data-error-for="terms"></p>
           </div>
 
-          <button class="btn btn-primary btn-lg" type="submit">Create my account</button>
+          <button class="btn btn-primary btn-lg" type="submit">Créer mon profil</button>
         </form>
 
-        <p class="auth-switch">Already have an account? <a href="/login">Log in</a></p>
+        <p class="auth-switch">Déjà inscrit&nbsp;? <a href="/login">Se connecter</a></p>
       </div>
     </section>
 
-    <aside class="auth-brand-side" aria-label="What happens next">
+    <aside class="auth-brand-side" aria-label="Ce qui se passe cette nuit">
       <div class="auth-brand-inner">
-        <p class="eyebrow">Tonight, while you sleep</p>
-        <p class="auth-quote">Your next client, delivered every morning at 8 AM.</p>
+        <p class="eyebrow">Cette nuit, pendant que vous dormez</p>
+        <p class="auth-quote">Une offre en CDI le soir, votre mission le matin.</p>
         <ol class="mini-timeline">
-          <li><span>10 PM</span>Thousands of listings scanned on 4 job boards</li>
-          <li><span>3 AM</span>AI keeps only the hidden freelance needs</li>
-          <li><span>5 AM</span>Decision-makers identified and enriched</li>
-          <li><span>8 AM</span>Your Freeleads are waiting in your CRM</li>
+          <li><span>22:00</span>On lit les offres d’emploi de la journée</li>
+          <li><span>03:00</span>On repère celles qui cachent une mission</li>
+          <li><span>05:00</span>On trouve la personne qui décide</li>
+          <li><span>08:00</span>Vos missions arrivent, notées sur 100</li>
         </ol>
       </div>
     </aside>

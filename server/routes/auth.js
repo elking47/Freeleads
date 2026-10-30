@@ -55,7 +55,7 @@ authRouter.get("/session", (req, res) => {
 });
 
 authRouter.get("/me", (req, res) => {
-  if (!req.user) throw new HttpError(401, "unauthenticated", "Please sign in.");
+  if (!req.user) throw new HttpError(401, "unauthenticated", "Connectez-vous pour continuer.");
   res.json({ user: publicUser(req.user) });
 });
 
@@ -64,7 +64,7 @@ authRouter.post("/signup", authIpLimiter, async (req, res) => {
   if (!ok) throw validationError(errors);
 
   if (q.userByEmail.get(data.email)) {
-    throw validationError({ email: "An account already exists for this email. Try signing in." });
+    throw validationError({ email: "Un compte existe déjà avec cet e-mail. Essayez de vous connecter." });
   }
 
   const passwordHash = await hashPassword(data.password);
@@ -85,7 +85,7 @@ authRouter.post("/login", authIpLimiter, loginAccountLimiter, async (req, res) =
   const { ok, data, errors } = validate(schemas.login, req.body);
   if (!ok) throw validationError(errors);
 
-  const invalid = new HttpError(401, "invalid_credentials", "Email or password is incorrect.");
+  const invalid = new HttpError(401, "invalid_credentials", "E-mail ou mot de passe incorrect.");
   const user = q.userByEmail.get(data.email);
   if (!user) {
     await verifyAgainstDummy(data.password);
@@ -95,7 +95,7 @@ authRouter.post("/login", authIpLimiter, loginAccountLimiter, async (req, res) =
   if (user.locked_until) {
     if (Date.parse(user.locked_until) > Date.now()) {
       securityLog("login_locked", { userId: user.id, ip: req.ip });
-      throw new HttpError(429, "locked", `Too many attempts. Try again in ${LOCK_MINUTES} minutes.`);
+      throw new HttpError(429, "locked", `Trop de tentatives. Réessayez dans ${LOCK_MINUTES} minutes.`);
     }
     q.resetFailures.run(user.id); // The lock expired: start counting again from zero.
   }

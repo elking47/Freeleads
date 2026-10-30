@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Publier une mission · Freeleads</title>
+  <meta name="description" content="Collez le lien de votre offre d’emploi ou décrivez le besoin : vous recevez 5 freelances notés sous 48 h. Gratuit pour les entreprises.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script src="/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <script type="module" src="/js/publish.js"></script>
+</head>
+<body class="auth-page">
+  <main class="auth-layout">
+    <section class="auth-form-side">
+      <a class="logo" href="/entreprise" aria-label="Freeleads entreprise, accueil">
+        <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><rect class="logo-bg" width="32" height="32" rx="8"/><path class="logo-f" d="M10 8h12v4h-8v3.2h7v4h-7V24h-4z"/><circle cx="23.2" cy="22" r="2.6" fill="#10b981"/></svg>
+        Freeleads
+      </a>
+
+      <div class="auth-card" data-publish>
+        <h1>Publier une mission</h1>
+        <p class="auth-sub">Collez le lien de votre offre d’emploi, ou décrivez le besoin en trois lignes. Votre shortlist de 5 freelances notés arrive sous 48&nbsp;h. C’est gratuit.</p>
+
+        <form class="auth-form" data-mission-form>
+          <p class="form-error" role="alert" data-form-error></p>
+
+          <div class="field">
+            <label for="offerUrl">Lien de votre offre d’emploi</label>
+            <input class="input mono-input" id="offerUrl" name="offerUrl" type="url" inputmode="url" maxlength="2048" placeholder="https://carrieres.votre-entreprise.fr/offre" autocomplete="url">
+            <p class="field-error" id="err-offerUrl" data-error-for="offerUrl"></p>
+          </div>
+
+          <div class="field">
+            <label for="description">Ou décrivez le besoin <span class="legend-hint">(facultatif si vous avez un lien)</span></label>
+            <textarea class="textarea" id="description" name="description" rows="3" maxlength="1000" placeholder="Ex. : un motion designer pour 6 semaines, sur une série de vidéos produit, à partir du 15 novembre."></textarea>
+            <p class="field-error" id="err-description" data-error-for="description"></p>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="company">Entreprise</label>
+              <input class="input" id="company" name="company" type="text" autocomplete="organization" required minlength="2" maxlength="100">
+              <p class="field-error" id="err-company" data-error-for="company"></p>
+            </div>
+            <div class="field">
+              <label for="name">Votre nom</label>
+              <input class="input" id="name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="60">
+              <p class="field-error" id="err-name" data-error-for="name"></p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="email">E-mail professionnel</label>
+              <input class="input" id="email" name="email" type="email" inputmode="email" autocomplete="email" required maxlength="254">
+              <p class="field-error" id="err-email" data-error-for="email"></p>
+            </div>
+            <div class="field">
+              <label for="phone">Téléphone <span class="legend-hint">(facultatif)</span></label>
+              <input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20">
+              <p class="field-error" id="err-phone" data-error-for="phone"></p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="checkbox">
+              <input type="checkbox" name="consent" required>
+              <span>J’accepte d’être recontacté au sujet de cette mission. Voir la <a href="/confidentialite">politique de confidentialité</a>.</span>
+            </label>
+            <p class="field-error" id="err-consent" data-error-for="consent"></p>
+          </div>
+
+          <button class="btn btn-primary btn-lg" type="submit">Recevoir ma shortlist</button>
+        </form>
+
+        <div class="success" data-success hidden tabindex="-1">
+          <span class="success-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </span>
+          <h2>C’est noté&nbsp;!</h2>
+          <p>Notre équipe analyse votre offre. Vous recevez votre shortlist de 5 freelances notés sous 48&nbsp;h, à l’adresse <strong data-success-email></strong>.</p>
+          <a class="btn" href="/entreprise">Retour à l’accueil</a>
+        </div>
+
+        <p class="auth-switch">Vous êtes freelance&nbsp;? <a href="/signup">Créer mon profil gratuit</a></p>
+      </div>
+    </section>
+
+    <aside class="auth-brand-side" aria-label="Ce qui se passe ensuite">
+      <div class="auth-brand-inner">
+        <p class="eyebrow">Ce qui se passe ensuite</p>
+        <p class="auth-quote">Votre projet peut avancer dès lundi.</p>
+        <ol class="mini-timeline">
+          <li><span>Aujourd’hui</span>Vous collez votre offre</li>
+          <li><span>Secondes</span>La mission est extraite</li>
+          <li><span>Sous 48&nbsp;h</span>5 freelances notés, relus par l’équipe</li>
+          <li><span>Lundi</span>Vous travaillez en direct, sans commission</li>
+        </ol>
+      </div>
+    </aside>
+  </main>
+</body>
+</html>

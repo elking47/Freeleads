@@ -1,24 +1,24 @@
 // Product constants shared by the browser and the server.
-// Values come from the Freeleads business plan (disciplines, tiers, pipeline stages).
+// Disciplines and plans follow maquette v6 (Gratuit / Pro / Studio, free for companies).
 
 export const DISCIPLINES = Object.freeze([
-  { id: "web", label: "Web", detail: "Front, back, fullstack", decisionMaker: "CTO" },
+  { id: "video", label: "Vidéo", detail: "Motion, montage, captation", decisionMaker: "Head of Content" },
+  { id: "design", label: "Design", detail: "Identité, print, UI", decisionMaker: "Directeur·rice artistique" },
+  { id: "web", label: "Développement web", detail: "Front, back, fullstack", decisionMaker: "CTO" },
   { id: "marketing", label: "Marketing", detail: "SEO, SEA, CRM, growth", decisionMaker: "CMO" },
-  { id: "design", label: "Design", detail: "Identity, print", decisionMaker: "Creative Director" },
-  { id: "copywriting", label: "Copywriting", detail: "SEO, technical", decisionMaker: "Head of Content" },
-  { id: "video", label: "Video", detail: "Motion, editing, capture", decisionMaker: "Head of Content" },
-  { id: "communications", label: "Communications", detail: "PR, brand, events", decisionMaker: "Head of Communications" },
-  { id: "photography", label: "Photography", detail: "Corporate, product", decisionMaker: "Marketing Manager" },
-  { id: "sales", label: "Sales", detail: "B2B prospecting", decisionMaker: "Head of Sales" },
+  { id: "copywriting", label: "Rédaction", detail: "SEO, technique", decisionMaker: "Responsable contenu" },
+  { id: "photography", label: "Photographie", detail: "Corporate, produit", decisionMaker: "Responsable marketing" },
+  { id: "communications", label: "Communication", detail: "RP, marque, événements", decisionMaker: "Directeur·rice communication" },
+  { id: "sales", label: "Développement commercial", detail: "Prospection B2B", decisionMaker: "Directeur·rice commercial" },
 ]);
 
 export const DISCIPLINE_IDS = Object.freeze(DISCIPLINES.map((d) => d.id));
 
+// leadsPerDay / contactsPerMonth: null means unlimited.
 export const PLANS = Object.freeze({
-  solo: { id: "solo", label: "Solo", price: 29, leadsPerDay: 10, disciplines: 1, seats: 1, api: false },
-  pro: { id: "pro", label: "Pro", price: 59, leadsPerDay: 30, disciplines: 3, seats: 1, api: false },
-  // leadsPerDay: null means unlimited.
-  team: { id: "team", label: "Team", price: 149, leadsPerDay: null, disciplines: 8, seats: 5, api: true },
+  free: { id: "free", label: "Gratuit", price: 0, leadsPerDay: null, contactsPerMonth: 5, disciplines: 3, seats: 1, api: false },
+  pro: { id: "pro", label: "Pro", price: 19, leadsPerDay: null, contactsPerMonth: null, disciplines: 3, seats: 1, api: false },
+  studio: { id: "studio", label: "Studio", price: 49, leadsPerDay: null, contactsPerMonth: null, disciplines: 8, seats: 3, api: true },
 });
 
 export const PLAN_IDS = Object.freeze(Object.keys(PLANS));
@@ -49,7 +49,7 @@ export const SOURCES = Object.freeze({
   wttj: "Welcome to the Jungle",
 });
 
-// Automated follow-up reminders after first contact (business plan: D+3 and D+7).
+// Automated follow-up reminders after first contact (D+3 and D+7).
 export const FOLLOW_UP_DAYS = Object.freeze([3, 7]);
 
 export const TEMPLATE_VARIABLES = Object.freeze([

@@ -23,13 +23,18 @@ every day at `DELIVERY_HOUR` (default 8 AM, Europe/Paris).
 
 | Path | Purpose |
 |---|---|
-| `public/index.html` | Marketing site: hero, problem, 4-stage engine, CRM features, disciplines, pricing, FAQ |
-| `public/signup.html`, `login.html` | Split-screen auth pages |
-| `public/app.html` + `public/js/app/` | The app: Today (8 AM feed), All leads, Pipeline (kanban), Templates, Follow-ups (D+3/D+7), Analytics, Settings |
+| `public/index.html` | Site (French, maquette v6): freelance version, light/dark mode |
+| `public/entreprise.html` | Site: company version (`/entreprise`) |
+| `public/publier-une-mission.html` | Company form: offer link or description → shortlist request (`POST /api/missions`) |
+| `public/signup.html`, `login.html` | Split-screen auth pages (French) |
+| `public/conditions.html`, `confidentialite.html`, `mentions-legales.html` | Legal page **templates**: fill in the marked fields and have them reviewed before launch |
+| `public/js/site/` | Landing widgets (métiers, score, calculator, demos) and their content |
+| `public/fonts/` | Self-hosted IBM Plex Sans/Mono (SIL OFL 1.1; no third-party font requests) |
+| `public/app.html` + `public/js/app/` | The app (still in English): Today (8 AM feed), All leads, Pipeline (kanban), Templates, Follow-ups (D+3/D+7), Analytics, Settings |
 | `shared/` | Constants and **validation rules used by both the browser and the API** |
 | `server/engine/` | Nightly pipeline: scrape → AI filter (`qualifier.js`) → enrich → deliver |
-| `server/routes/` | JSON API (`/api/auth`, `/api/leads`, `/api/templates`, `/api/settings`, `/api/analytics`) |
-| `test/security.test.js` | End-to-end security checks |
+| `server/routes/` | JSON API (`/api/auth`, `/api/missions`, `/api/leads`, `/api/templates`, `/api/settings`, `/api/analytics`) |
+| `test/` | End-to-end security, pipeline, mission-request and plan tests |
 
 ### Demo data
 
@@ -55,6 +60,10 @@ Hunter…). Read their API keys from new environment variables in `server/config
   the app.
 - The rate-limit store is in memory. Use a shared store (for example Redis) if you run several instances.
 - Not built yet: email verification, password reset, SSO, Stripe billing (plan switching is free in this
-  version), the 8 AM notification email, real scraping/enrichment adapters.
+  version), the 8 AM notification email, real scraping/enrichment adapters, the Gratuit plan's limit of
+  5 decision-maker contacts per month, a back-office to review company mission requests, and a French
+  version of the app.
+- Company offer links are stored as text and **never fetched by the server** (no SSRF). If you add
+  automatic offer analysis later, fetch through an allow-list and block private/internal addresses.
 - Have a lawyer review scraping (job-board terms of service) and B2B contact processing under GDPR. The
   FAQ copy on the landing page states the intended policy.

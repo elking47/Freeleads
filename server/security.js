@@ -14,7 +14,7 @@ export class HttpError extends Error {
 }
 
 export const validationError = (errors) =>
-  new HttpError(400, "validation", "Some fields need your attention.", errors);
+  new HttpError(400, "validation", "Certains champs sont à corriger.", errors);
 
 /** Log security-relevant events without personal data (emails are hashed). */
 export function securityLog(event, details = {}) {
@@ -60,7 +60,7 @@ const limiterDefaults = {
   legacyHeaders: false,
   handler: (req, res, _next, options) => {
     securityLog("rate_limited", { path: req.path, ip: req.ip });
-    res.status(options.statusCode).json({ error: "rate_limited", message: "Too many requests. Please slow down." });
+    res.status(options.statusCode).json({ error: "rate_limited", message: "Trop de tentatives. Réessayez dans quelques minutes." });
   },
 };
 
@@ -79,6 +79,17 @@ export const loginAccountLimiter = rateLimit({
     const email = typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase().slice(0, 254) : "";
     return `login:${createHash("sha256").update(email).digest("hex")}`;
   },
+});
+
+/**
+ * Company mission requests: public form, so a tight per-IP limit on stored submissions (spam).
+ * Rejected submissions store nothing and stay bounded by the global API limit.
+ */
+export const missionLimiter = rateLimit({
+  ...limiterDefaults,
+  windowMs: 60 * 60_000,
+  limit: 5,
+  skipFailedRequests: true,
 });
 
 /** Write operations (lead updates, templates, settings), keyed by user when signed in. */
@@ -148,7 +159,7 @@ export function verifyCsrf(req, _res, next) {
     safeEqual(signature, sign(`csrf:${binding}:${nonce}`));
   if (!valid) {
     securityLog("csrf_rejected", { path: req.path, ip: req.ip });
-    return next(new HttpError(403, "csrf", "Your session token expired. Please retry."));
+    return next(new HttpError(403, "csrf", "Votre session a expiré. Réessayez."));
   }
   next();
 }
@@ -159,21 +170,21 @@ export function verifyCsrf(req, _res, next) {
 export function requireJson(req, _res, next) {
   if (SAFE_METHODS.has(req.method) || req.method === "DELETE") return next();
   if (!req.is("application/json")) {
-    return next(new HttpError(415, "unsupported_media_type", "Requests must be sent as JSON."));
+    return next(new HttpError(415, "unsupported_media_type", "Les requêtes doivent être envoyées en JSON."));
   }
   next();
 }
 
 /** Route ids must be positive integers; anything else is a 404, not a database query. */
 export function parseId(raw) {
-  if (typeof raw !== "string" || !/^[1-9]\d{0,9}$/.test(raw)) throw new HttpError(404, "not_found", "Not found.");
+  if (typeof raw !== "string" || !/^[1-9]\d{0,9}$/.test(raw)) throw new HttpError(404, "not_found", "Introuvable.");
   return Number(raw);
 }
 
 // ---- Error handling --------------------------------------------------------------------------
 
 export function apiNotFound(_req, _res, next) {
-  next(new HttpError(404, "not_found", "Not found."));
+  next(new HttpError(404, "not_found", "Introuvable."));
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -183,8 +194,8 @@ export function errorHandler(error, req, res, _next) {
   }
   // Body-parser errors (malformed JSON, payload too large) carry a 4xx status.
   if (error?.status >= 400 && error.status < 500) {
-    return res.status(error.status).json({ error: "bad_request", message: "The request could not be read." });
+    return res.status(error.status).json({ error: "bad_request", message: "La requête est illisible." });
   }
   console.error(`[error] ${req.method} ${req.path}`, error);
-  res.status(500).json({ error: "internal", message: "Something went wrong on our side." });
+  res.status(500).json({ error: "internal", message: "Une erreur est survenue de notre côté." });
 }

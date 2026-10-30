@@ -5,6 +5,7 @@ import { config } from "./config.js";
 import { analyticsRouter } from "./routes/analytics.js";
 import { authRouter } from "./routes/auth.js";
 import { leadsRouter } from "./routes/leads.js";
+import { missionsRouter } from "./routes/missions.js";
 import { settingsRouter } from "./routes/settings.js";
 import { templatesRouter } from "./routes/templates.js";
 import {
@@ -44,6 +45,7 @@ export function createApp() {
   });
 
   api.use("/auth", authRouter);
+  api.use("/missions", missionsRouter);
   api.use("/leads", requireAuth, leadsRouter);
   api.use("/templates", requireAuth, templatesRouter);
   api.use("/settings", requireAuth, settingsRouter);

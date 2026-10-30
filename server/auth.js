@@ -94,6 +94,6 @@ export function loadSession(req, _res, next) {
 }
 
 export function requireAuth(req, _res, next) {
-  if (!req.user) return next(new HttpError(401, "unauthenticated", "Please sign in."));
+  if (!req.user) return next(new HttpError(401, "unauthenticated", "Connectez-vous pour continuer."));
   next();
 }

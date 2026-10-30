@@ -18,7 +18,7 @@ db.exec(`
     email           TEXT NOT NULL UNIQUE,
     name            TEXT NOT NULL,
     password_hash   TEXT NOT NULL,
-    plan            TEXT NOT NULL DEFAULT 'pro' CHECK (plan IN ('solo','pro','team')),
+    plan            TEXT NOT NULL DEFAULT 'pro' CHECK (plan IN ('free','pro','studio')),
     trial_ends_at   TEXT,
     daily_rate      INTEGER,
     location        TEXT,
@@ -133,6 +133,19 @@ db.exec(`
     updated_at  TEXT NOT NULL
   );
   CREATE INDEX IF NOT EXISTS templates_user ON templates(user_id);
+
+  -- Companies submitting a job offer to receive a freelance shortlist (reviewed by the team).
+  CREATE TABLE IF NOT EXISTS mission_requests (
+    id            INTEGER PRIMARY KEY,
+    offer_url     TEXT,
+    description   TEXT,
+    company       TEXT NOT NULL,
+    contact_name  TEXT NOT NULL,
+    email         TEXT NOT NULL,
+    phone         TEXT,
+    status        TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new','shortlisted','closed')),
+    created_at    TEXT NOT NULL
+  );
 
   CREATE TABLE IF NOT EXISTS activities (
     id          INTEGER PRIMARY KEY,
