@@ -33,7 +33,7 @@ main() {
   echo "==> Restarting"
   systemctl restart freeleads
   for _ in $(seq 1 30); do
-    if curl -fsS -o /dev/null "http://127.0.0.1:$PORT/"; then
+    if curl -fs -o /dev/null "http://127.0.0.1:$PORT/"; then
       echo "Freeleads is up to date and running."
       return 0
     fi
