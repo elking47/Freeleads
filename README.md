@@ -16,6 +16,9 @@ npm run dev                 # http://127.0.0.1:3000
 npm test                    # security test suite
 ```
 
+**Deploy to production (Hostinger VPS over SSH):** see [DEPLOY.md](DEPLOY.md). One command sets up
+Node.js 22, a systemd service, Nginx, HTTPS and daily backups.
+
 Sign up at `/signup`. The current day's Freeleads are delivered immediately. The engine runs its batch
 every day at `DELIVERY_HOUR` (default 8 AM, Europe/Paris).
 
